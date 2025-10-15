@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAX Expert Assistant - Claude AI Powered</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            width: 100%;
+        }
+        
+        .chat-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 30px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        
+        .user-message {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .assistant-message {
+            background: #e9ecef;
+            color: #333;
+        }
+        
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        
+        #userInput {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        #userInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        #sendBtn {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        #sendBtn:hover {
+            background: #5568d3;
+        }
+        
+        .example-queries {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+        }
+        
+        .example-queries h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .query-btn {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 15px;
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .query-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🚀 DAX Expert Assistant</h1>
+        <p class="subtitle">Powered by Claude AI - Your DAX Solution Partner</p>
+    </header>
+    
+    <div class="container">
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <div class="message assistant-message">
+                    Hello! I'm your DAX Expert Assistant powered by Claude AI. I can help you with:
+                    <ul style="margin-top: 10px;">
+                        <li>Writing and optimizing DAX formulas</li>
+                        <li>Explaining DAX functions and concepts</li>
+                        <li>Troubleshooting DAX errors</li>
+                        <li>Best practices for Power BI and Analysis Services</li>
+                    </ul>
+                    How can I assist you today?
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Ask me anything about DAX..." />
+                <button id="sendBtn">Send</button>
+            </div>
+        </div>
+        
+        <div class="example-queries">
+            <h3>Example Questions:</h3>
+            <button class="query-btn" onclick="setQuery('How do I calculate year-over-year growth in DAX?')">Year-over-year growth</button>
+            <button class="query-btn" onclick="setQuery('Explain the CALCULATE function')">CALCULATE function</button>
+            <button class="query-btn" onclick="setQuery('What is the difference between RELATED and RELATEDTABLE?')">RELATED vs RELATEDTABLE</button>
+            <button class="query-btn" onclick="setQuery('How to create a running total in DAX?')">Running total</button>
+            <button class="query-btn" onclick="setQuery('Best practices for DAX performance optimization')">Performance optimization</button>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const messagesDiv = document.getElementById('messages');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        
+        // Add message to chat
+        function addMessage(text, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+            messageDiv.textContent = text;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        // Set query from example buttons
+        function setQuery(query) {
+            userInput.value = query;
+            userInput.focus();
+        }
+        
+        // Send message
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, true);
+            userInput.value = '';
+            
+            // TODO: Connect to backend API with Claude AI
+            // For now, show a placeholder response
+            setTimeout(() => {
+                addMessage(
+                    'This is a demo response. To enable full functionality, connect this frontend to a backend API that integrates with Claude AI. ' +
+                    'You can use Firebase Functions or any backend service to process DAX queries and return AI-generated responses.',
+                    false
+                );
+            }, 1000);
+            
+            /* Example backend integration:
+            try {
+                const response = await fetch('YOUR_FIREBASE_FUNCTION_URL', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: message })
+                });
+                
+                const data = await response.json();
+                addMessage(data.response, false);
+            } catch (error) {
+                addMessage('Error connecting to the server. Please try again.', false);
+            }
+            */
+        }
+        
+        // Event listeners
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
